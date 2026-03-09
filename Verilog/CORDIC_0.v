@@ -1,22 +1,22 @@
-
+//Kanvar was here
 module cordic
 (   
     // ## I/O
     input wire          clk, 
-    input wire          init, // 'go' button for algorithm
-    input wire[17:0]    angle_in, // in radians
-    output wire[17:0]   cos, // in radians
-    output wire[17:0]   sin, // in radians
-    output wire[17:0]   angle_out, // in radians
-    output wire         done, // finished cooking 'ding'
+    input wire          init,       // 'go' button for algorithm
+    input wire[17:0]    angle_in,   // in radians
+    output wire[17:0]   cos,        // in radians
+    output wire[17:0]   sin,        // in radians
+    output wire[17:0]   angle_out,  // in radians
+    output wire         done,       // finished cooking 'ding'
 
     // ## internal variables (from Python algorithm implementation)
-    reg[17:0]       GA; // angle_in
-    reg[17:0]       A; // running angle
+    reg[17:0]       GA;             // angle_in
+    reg[17:0]       A;                  // running angle
     reg[17:0]       Delta;
-    reg[17:0][1:0]  CS; // cos/sin combo variable, 
-                        // matching python modeling
-    reg[17:0][1:0]  CS_old; // cos/sin old var...
+    reg[17:0][1:0]  CS;                 // cos/sin combo variable, 
+                                        // matching python modeling
+    reg[17:0][1:0]  CS_old;             // cos/sin old var...
 
     // ## precalculated ROM section...
     reg[15:0]       K; // constant K, just using the 16 fractional bits
@@ -31,7 +31,7 @@ module cordic
     
 
     // ## setting Globals
-    iterations <= 23;
+    iterations <= 17;
     // precalculated value for 2.16 K (steps=17): 0.0.6072529350088871
     // !! The two decimal bits have been cut off, the 16 fractional bits are used
     K = 16'b10011011011101000; // actual value: 0.0.60723876953125  
@@ -48,19 +48,31 @@ module cordic
             // latch input
             GA <= angle_in;
         end
+
         if (go == 1) begin
+            // initialising CS matrix
+            if (i == 0) begin
+                if (GA >= 0) begin
+                    C <= C * K;
+                    S <= S * K;
+                end else begin
+                    C <= C * K;
+                    S <= S * -K;
+                end
+            end
+
             // store old values
             CS_old <= CS;
 
             // use precalculated Delta values...
             if (A <= GA) begin
                 A <= A + Delta[i];
-                CS[0] <= K*((CS_old) - (CS_old>>i)) // cos term
-                CS[1] <= K*((CS_old) + (CS_old>>i)) // sin term
+                CS[0] <= ((CS_old) - (CS_old>>i)) // cos term
+                CS[1] <= ((CS_old) + (CS_old>>i)) // sin term
             end else begin
                 A <= A - Delta[i];
-                CS[0] <= K*((CS_old) + (CS_old>>i)) // cos term
-                CS[1] <= K*((CS_old) - (CS_old>>i)) // sin term
+                CS[0] <= ((CS_old) + (CS_old>>i)) // cos term
+                CS[1] <= ((CS_old) - (CS_old>>i)) // sin term
             end
 
             // increment the index
