@@ -10,7 +10,7 @@ from numpy.ma.core import reshape
 # delta = tan^(-1)(2^(-i)) for each value of i...
 ###
 
-GA = math.pi/4
+GA = math.pi/3
 A = 0
 steps = 18
 
