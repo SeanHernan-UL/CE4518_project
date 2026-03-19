@@ -1,3 +1,7 @@
+## CE4518 Project Work: CORDIC
+## Group members (ID):  Kanvar Murray (22374698),
+##                      Seán Hernan (22348948)
+
 import math
 import numpy as np
 from numpy.ma.core import reshape
